@@ -11,7 +11,7 @@ steps:
   - label: "Annontate"
     commands: 
       - "buildkite-agent artifact download result.txt ./"
-      - "cat result.txt | buildkite-agent annotate"
+      - "cat ./result.txt | buildkite-agent annotate"
   # - label: "Run Paragraph Function and Annotate"
   #   commands: 
   #     - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> ./artifacts/paragraph_result.txt"
