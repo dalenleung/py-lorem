@@ -3,8 +3,8 @@ steps:
     command: echo "Start build"
   - label: "Run Sentence Function and Annotate"
     command: 
-      - "python3 -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> ./artifacts/sentence_result.txt"
-      - "cat ./artifacts/sentence_result.txt | buildkite-agent annotate"
+      - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> ./artifacts/sentence_result.txt"
+      # - "cat ./artifacts/sentence_result.txt | buildkite-agent annotate"
     artifact_paths: "./artifacts" 
     plugins:
       - docker#v5.12.0:
