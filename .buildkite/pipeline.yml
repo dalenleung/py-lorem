@@ -1,20 +1,20 @@
 steps:
-  - label: "Start"
-    command: echo "Start build"
+  - label: "Start Build"
+    command: echo "Starting steps..."
   - label: "Run Sentence Function and Annotate"
     commands: 
-      - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> ./artifacts/sentence_result.txt"
-      - "cat ./artifacts/sentence_result.txt | buildkite-agent annotate"
-    artifact_paths: "./artifacts" 
+      - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> sentence_result.txt"
+      - "cat sentence_result.txt | buildkite-agent annotate"
+    artifact_paths: "." 
     plugins:
       - docker#v5.12.0:
           image: "python:3.13"
-  - label: "Run Paragraph Function and Annotate"
-    commands: 
-      - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> ./artifacts/paragraph_result.txt"
-      - "cat ./artifacts/paragraph_result.txt | buildkite-agent annotate"
-    artifact_paths: "./artifacts" 
-    plugins:
-      - docker#v5.12.0:
-          image: "python:3.13"
+  # - label: "Run Paragraph Function and Annotate"
+  #   commands: 
+  #     - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> ./artifacts/paragraph_result.txt"
+  #     - "cat ./artifacts/paragraph_result.txt | buildkite-agent annotate"
+  #   artifact_paths: "./artifacts" 
+  #   plugins:
+  #     - docker#v5.12.0:
+  #         image: "python:3.13"
     
