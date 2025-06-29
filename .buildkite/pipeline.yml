@@ -1,27 +1,38 @@
 steps:
-  - label: "Start Build"
-    command: echo "Starting steps..."
-  - label: "Run Sentence Function and Annotate"
+  - label: "Start Exercise"
+    command: echo "Starting exercise steps..."
+  - label: "Run Sentence Function"
     commands: 
       - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> result.txt"
-      - "cat result.txt | buildkite-agent annotate"
-    # artifact_paths: "./result.txt" 
+    artifact_paths: "./result.txt" 
     plugins:
       - docker#v5.12.0:
           image: "python:3.13"
-  # - label: "Annontate"
-  #   commands: 
-  #     - "buildkite-agent artifact download result.txt ./"
-  #     - "cat ./result.txt | buildkite-agent annotate"
-  - label: "Run Paragraph Function and Annotate"
+    key: "run-sentence"
+  - label: "Annontate Result 1"
     commands: 
-      - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
-      - "cat result2.txt | buildkite-agent annotate"
-      - "buildkite-agent artifact upload result2.txt"
-    # artifact_paths: "./artifacts" 
-    plugins:
-      - docker#v5.12.0:
-          image: "python:3.13"
+      - "buildkite-agent artifact download result.txt ./"
+      - "cat ./result.txt | buildkite-agent annotate"
+    key: "annotate-result1"
+  - label: "Run Paragraph Function"
+    depends_on: "annotate-result1"
+    commands: |
+      command: |
+      if [ $$(buildkite-agent step get "outcome" --step "run-sentence") == "passed" && $$(buildkite-agent step get "outcome" --step "annotate-result1") == "passed" ]; then
+         cat <<- YAML | buildkite-agent pipeline upload
+         steps:
+           - label: "Run Regression"
+             command: "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
+             artifact_paths: "./result2.txt"
+             plugins:
+              - docker#v5.12.0:
+                  image: "python:3.13"
+      YAML
+      fi
+  - label: "Annontate Result 2"
+    commands: 
+      - "buildkite-agent artifact download result2.txt ./"
+      - "cat ./result2.txt | buildkite-agent annotate"
   - label: "Download and Print Artifact"
     commands: 
       - "buildkite-agent artifact download result2.txt"
