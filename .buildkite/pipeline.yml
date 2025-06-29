@@ -16,8 +16,7 @@ steps:
     key: "annotate-result1"
   - label: "Run Paragraph Function"
     depends_on: "annotate-result1"
-    commands: |
-      command: |
+    command: |
       if [ $$(buildkite-agent step get "outcome" --step "run-sentence") == "passed" && $$(buildkite-agent step get "outcome" --step "annotate-result1") == "passed" ]; then
          cat <<- YAML | buildkite-agent pipeline upload
          steps:
