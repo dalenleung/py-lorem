@@ -9,7 +9,7 @@ steps:
       - docker#v5.12.0:
           image: "python:3.13"
     key: "run-sentence"
-  - label: "Annontate Result 1"
+  - label: "annotate Result 1"
     commands: 
       - "buildkite-agent artifact download result.txt ./"
       - "cat ./result.txt | buildkite-agent annotate"
@@ -28,7 +28,7 @@ steps:
                   image: "python:3.13"
       YAML
       fi
-  - label: "Annontate Result 2"
+  - label: "annotate Result 2"
     commands: 
       - "buildkite-agent artifact download result2.txt ./"
       - "cat ./result2.txt | buildkite-agent annotate"
@@ -42,4 +42,10 @@ steps:
       - "docker pull hello-world"
       - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
       - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
+  - label: "Pull Buildkite Docker Image and Run It"
+    commands:
+      - echo "Hello World from container"
+    plugins:
+      - docker#v5.12.0:
+          image: "hello-world:1.0"
     
