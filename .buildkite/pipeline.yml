@@ -47,5 +47,5 @@ steps:
       - echo "Hello World from container"
     plugins:
       - docker#v5.12.0:
-          image: "hello-world:1.0"
+          image: "docker pull packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
     
