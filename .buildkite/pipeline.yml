@@ -4,20 +4,32 @@ steps:
   - label: "Run Sentence Function and Annotate"
     commands: 
       - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> result.txt"
-    artifact_paths: "./result.txt" 
+      - "cat result.txt | buildkite-agent annotate"
+    # artifact_paths: "./result.txt" 
     plugins:
       - docker#v5.12.0:
           image: "python:3.13"
-  - label: "Annontate"
-    commands: 
-      - "buildkite-agent artifact download result.txt ./"
-      - "cat ./result.txt | buildkite-agent annotate"
-  # - label: "Run Paragraph Function and Annotate"
+  # - label: "Annontate"
   #   commands: 
-  #     - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> ./artifacts/paragraph_result.txt"
-  #     - "cat ./artifacts/paragraph_result.txt | buildkite-agent annotate"
-  #   artifact_paths: "./artifacts" 
-  #   plugins:
-  #     - docker#v5.12.0:
-  #         image: "python:3.13"
+  #     - "buildkite-agent artifact download result.txt ./"
+  #     - "cat ./result.txt | buildkite-agent annotate"
+  - label: "Run Paragraph Function and Annotate"
+    commands: 
+      - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
+      - "cat result2.txt | buildkite-agent annotate"
+      - "buildkite-agent artifact upload result2.txt"
+    # artifact_paths: "./artifacts" 
+    plugins:
+      - docker#v5.12.0:
+          image: "python:3.13"
+  - label: "Download and Print Artifact"
+    commands: 
+      - "buildkite-agent artifact download result2.txt"
+      - "cat result2.txt"
+  - label: "Push to Buildkite Docker Package Registries"
+    commands: 
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
+      - "docker pull hello-world"
+      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
+      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
     
