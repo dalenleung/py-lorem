@@ -38,18 +38,16 @@ steps:
       - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
     commands: 
-      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $TEST_SECRET"
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
       - "docker pull hello-world"
       - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
       - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
-    env:
-      TEST_SECRET:
-        from_secret: test
   - label: "My Step"
-    command: "echo 'Secret value is: $TEST_SECRET'"
-    env:
-      TEST_SECRET:
-        from_secret: test
+    command: |
+      SECRET_VALUE=$$(buildkite-agent secret get test)
+      echo "Using secret: $$SECRET_VALUE"
+      SECRET_VALUE=$(buildkite-agent secret get test)
+      echo "Using secret: $SECRET_VALUE"
   - label: "Pull Buildkite Docker Image and Run It"
     commands:
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
