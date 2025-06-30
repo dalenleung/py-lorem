@@ -16,7 +16,7 @@ steps:
     depends_on: "run-sentence"
     commands: 
       - "buildkite-agent artifact download result.txt ."
-      - "cat result.txt | buildkite-agent annotate"
+      - "cat result.txt | buildkite-agent annotate --style 'success'"
   - label: ":python: Run Paragraph Function"
     key: "run-paragraph"
     depends_on: "annotate-sentence-result"
@@ -33,12 +33,12 @@ steps:
     depends_on: "run-paragraph"
     commands: 
       - "buildkite-agent artifact download result2.txt ."
-      - "cat result2.txt | buildkite-agent annotate"
+      - "cat result2.txt | buildkite-agent annotate --style 'success'"
   - label: ":arrow_down: Download and Print Artifact"
     key: "download-print-artifact"
     depends_on: "annotate-paragraph-result"
     commands: 
-      - "buildkite-agent artifact download result2.txt"
+      - "buildkite-agent artifact download result2.txt ."
       - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
     key: "docker-package-registry"
