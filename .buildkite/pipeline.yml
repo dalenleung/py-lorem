@@ -38,12 +38,21 @@ steps:
       - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
     commands: 
-      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $TEST_SECRET"
       - "docker pull hello-world"
       - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
       - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
+    env:
+      TEST_SECRET:
+        from_secret: test
+  - label: "My Step"
+    command: "echo 'Secret value is: $TEST_SECRET'"
+    env:
+      TEST_SECRET:
+        from_secret: test
   - label: "Pull Buildkite Docker Image and Run It"
     commands:
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
       - "docker pull packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
       - "docker run hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
     
