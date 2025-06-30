@@ -1,5 +1,3 @@
-env:
-  - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
 steps:
   - label: "Start Exercise"
     command: echo "Starting exercise steps..."
@@ -43,12 +41,20 @@ steps:
       - "buildkite-agent artifact download result2.txt"
       - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
+    key: "docker-package-registry"
+    depends_on: "download-print-artifact"
+    env:
+        TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
     commands: 
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
       - "docker pull hello-world"
       - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world:latest"
       - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/custom-nginx:latest"
   - label: "Pull Buildkite Docker Image and Run It"
+    key: "test-docker-package-registry"
+    depends_on: "docker-package-registry"
+    env:
+      TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
     commands:
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
       - "docker pull packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world@sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
