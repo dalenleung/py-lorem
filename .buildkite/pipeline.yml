@@ -48,7 +48,7 @@ steps:
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
       - "docker pull hello-world"
       - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world:latest"
-      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/custom-nginx:latest"
+      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world:latest"
   - label: "Pull Buildkite Docker Image and Run It"
     key: "test-docker-package-registry"
     depends_on: "docker-package-registry"
