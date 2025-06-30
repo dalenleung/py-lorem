@@ -39,14 +39,14 @@ steps:
   - label: "Push to Buildkite Docker Package Registries"
     commands: 
       - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
-      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
-      - "docker pull hello-world"
-      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:latest"
-      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:latest"
-  - label: "Pull Buildkite Docker Image and Run It"
-    commands:
-      - "TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)"
-      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
-      - "docker pull packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
-      - "docker run hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
+      - "docker login packages.buildkite.com/dl-trial/custom-registry -u buildkite -p $$TOKEN_VALUE"
+      - "docker pull nginx:1.29.0"
+      - "docker tag nginx:1.29.0 packages.buildkite.com/dl-trial/custom-registry/custom-nginx:latest"
+      - "docker push packages.buildkite.com/dl-trial/custom-registry/custom-nginx:latest"
+  # - label: "Pull Buildkite Docker Image and Run It"
+  #   commands:
+  #     - "TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)"
+  #     - "docker login packages.buildkite.com/dl-trial/custom-registry -u buildkite -p $$TOKEN_VALUE"
+  #     - "docker pull packages.buildkite.com/dl-trial/custom-registry/hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
+  #     - "docker run hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
     
