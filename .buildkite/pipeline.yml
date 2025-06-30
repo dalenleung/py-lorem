@@ -14,43 +14,39 @@ steps:
       - "buildkite-agent artifact download result.txt ./"
       - "cat ./result.txt | buildkite-agent annotate"
     key: "annotate-result1"
-  - label: "Run Paragraph Function"
-    depends_on: "annotate-result1"
-    command: |
-      if [ $$(buildkite-agent step get "outcome" --step "run-sentence") == "passed" && $$(buildkite-agent step get "outcome" --step "annotate-result1") == "passed" ]; then
-         cat <<- YAML | buildkite-agent pipeline upload
-         steps:
-           - label: "Run Regression"
-             command: "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
-             artifact_paths: "./result2.txt"
-             plugins:
-              - docker#v5.12.0:
-                  image: "python:3.13"
-      YAML
-      fi
-  - label: "annotate Result 2"
-    commands: 
-      - "buildkite-agent artifact download result2.txt ./"
-      - "cat ./result2.txt | buildkite-agent annotate"
-  - label: "Download and Print Artifact"
-    commands: 
-      - "buildkite-agent artifact download result2.txt"
-      - "cat result2.txt"
+  # - label: "Run Paragraph Function"
+  #   depends_on: "annotate-result1"
+  #   command: |
+  #     if [ $$(buildkite-agent step get "outcome" --step "run-sentence") == "passed" && $$(buildkite-agent step get "outcome" --step "annotate-result1") == "passed" ]; then
+  #        cat <<- YAML | buildkite-agent pipeline upload
+  #        steps:
+  #          - label: "Run Regression"
+  #            command: "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
+  #            artifact_paths: "./result2.txt"
+  #            plugins:
+  #             - docker#v5.12.0:
+  #                 image: "python:3.13"
+  #     YAML
+  #     fi
+  # - label: "annotate Result 2"
+  #   commands: 
+  #     - "buildkite-agent artifact download result2.txt ./"
+  #     - "cat ./result2.txt | buildkite-agent annotate"
+  # - label: "Download and Print Artifact"
+  #   commands: 
+  #     - "buildkite-agent artifact download result2.txt"
+  #     - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
     commands: 
-      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
+      - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
       - "docker pull hello-world"
-      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
-      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.0"
-  - label: "My Step"
-    command: |
-      SECRET_VALUE=$$(buildkite-agent secret get test)
-      echo "Using secret: $$SECRET_VALUE"
-      SECRET_VALUE=$(buildkite-agent secret get test)
-      echo "Using secret: $SECRET_VALUE"
+      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.1"
+      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.1"
   - label: "Pull Buildkite Docker Image and Run It"
     commands:
-      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $DOCKER_TOKEN"
+      - "TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)"
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $TOKEN_VALUE"
       - "docker pull packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
       - "docker run hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
     
