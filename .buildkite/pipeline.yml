@@ -1,52 +1,56 @@
+env:
+  - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
 steps:
   - label: "Start Exercise"
     command: echo "Starting exercise steps..."
-  - label: "Run Sentence Function"
-    commands: 
-      - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> result.txt"
-    artifact_paths: "./result.txt" 
+  - label: ":python: Run Sentence Function"
+    key: "run-sentence"
     plugins:
       - docker#v5.12.0:
           image: "python:3.13"
-    key: "run-sentence"
-  - label: "annotate Result 1"
     commands: 
-      - "buildkite-agent artifact download result.txt ./"
-      - "cat ./result.txt | buildkite-agent annotate"
-    key: "annotate-result1"
-  # - label: "Run Paragraph Function"
-  #   depends_on: "annotate-result1"
-  #   command: |
-  #     if [ $$(buildkite-agent step get "outcome" --step "run-sentence") == "passed" && $$(buildkite-agent step get "outcome" --step "annotate-result1") == "passed" ]; then
-  #        cat <<- YAML | buildkite-agent pipeline upload
-  #        steps:
-  #          - label: "Run Regression"
-  #            command: "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
-  #            artifact_paths: "./result2.txt"
-  #            plugins:
-  #             - docker#v5.12.0:
-  #                 image: "python:3.13"
-  #     YAML
-  #     fi
-  # - label: "annotate Result 2"
-  #   commands: 
-  #     - "buildkite-agent artifact download result2.txt ./"
-  #     - "cat ./result2.txt | buildkite-agent annotate"
-  # - label: "Download and Print Artifact"
-  #   commands: 
-  #     - "buildkite-agent artifact download result2.txt"
-  #     - "cat result2.txt"
+      - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> result.txt"
+      - echo "Generated sentence saved to result.txt"
+      - "cat result.txt"
+    artifact_paths: "result.txt" 
+  - label: ":memo: Annotate Sentence Result"
+    key: "annotate-sentence-result"
+    depends_on: "run-sentence"
+    commands: 
+      - "buildkite-agent artifact download result.txt ."
+      - "cat result.txt | buildkite-agent annotate"
+  - label: ":python: Run Paragraph Function"
+    key: "run-paragraph"
+    depends_on: "annotate-sentence-result"
+    plugins:
+    - docker#v5.12.0:
+        image: "python:3.13"
+    commands: 
+      - "python3 -c 'import loremipsum; print(loremipsum.paragraph(max_char=100))' >> result2.txt"
+      - echo "Generated paragraph saved to result2.txt"
+      - "cat result2.txt"
+    artifact_paths: "result2.txt"
+  - label: ":memo: Annotate Paragraph Result"
+    key: "annotate-paragraph-result"
+    depends_on: "run-paragraph"
+    commands: 
+      - "buildkite-agent artifact download result2.txt ."
+      - "cat result2.txt | buildkite-agent annotate"
+  - label: ":arrow_down: Download and Print Artifact"
+    key: "download-print-artifact"
+    depends_on: "annotate-paragraph-result"
+    commands: 
+      - "buildkite-agent artifact download result2.txt"
+      - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
     commands: 
-      - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
-      - "docker login packages.buildkite.com/dl-trial/custom-registry -u buildkite -p $$TOKEN_VALUE"
-      - "docker pull nginx:1.29.0"
-      - "docker tag nginx:1.29.0 packages.buildkite.com/dl-trial/custom-registry/custom-nginx:latest"
-      - "docker push packages.buildkite.com/dl-trial/custom-registry/custom-nginx:latest"
-  # - label: "Pull Buildkite Docker Image and Run It"
-  #   commands:
-  #     - "TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)"
-  #     - "docker login packages.buildkite.com/dl-trial/custom-registry -u buildkite -p $$TOKEN_VALUE"
-  #     - "docker pull packages.buildkite.com/dl-trial/custom-registry/hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
-  #     - "docker run hello-world:sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
+      - "docker pull hello-world"
+      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world:latest"
+      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/custom-nginx:latest"
+  - label: "Pull Buildkite Docker Image and Run It"
+    commands:
+      - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
+      - "docker pull packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world@sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
+      - "docker run custom-hello-world@sha256:a3f53a068794afb31f76ae82f79c71db0fb05a3ec960c62cd15027e214d7dc7f"
     
