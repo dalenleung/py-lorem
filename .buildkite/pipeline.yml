@@ -41,8 +41,8 @@ steps:
       - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
       - "docker pull hello-world"
-      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.1"
-      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:1.1"
+      - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:latest"
+      - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/hello-world:latest"
   - label: "Pull Buildkite Docker Image and Run It"
     commands:
       - "TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)"
