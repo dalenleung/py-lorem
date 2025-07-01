@@ -13,7 +13,7 @@ steps:
       - "python -c 'import loremipsum; print(loremipsum.sentence(max_char=20))' >> result.txt"
       - echo "Generated sentence saved to result.txt"
       - "cat result.txt"
-      - echo "$$USER $$PASSWORD"
+      - echo "$USER $PASSWORD"
     artifact_paths: "result.txt" 
   - label: ":memo: Annotate Sentence Result"
     key: "annotate_sentence_result"
