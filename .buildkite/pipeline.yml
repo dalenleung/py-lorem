@@ -20,7 +20,6 @@ steps:
   - label: ":python: Run Paragraph Function"
     key: "run_paragraph"
     depends_on: "annotate_sentence_result"
-    if: build.jobs.annotate_sentence_result.state == "passed"
     plugins:
     - docker#v5.12.0:
         image: "python:3.13"
