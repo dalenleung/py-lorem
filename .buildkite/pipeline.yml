@@ -2,7 +2,7 @@ steps:
   - label: "Start Exercise"
     command: echo "Starting exercise steps..."
   - label: ":python: Run Sentence Function"
-    key: "run-sentence"
+    key: "run_sentence"
     plugins:
       - docker#v5.12.0:
           image: "python:3.13"
@@ -12,15 +12,15 @@ steps:
       - "cat result.txt"
     artifact_paths: "result.txt" 
   - label: ":memo: Annotate Sentence Result"
-    key: "annotate-sentence-result"
-    depends_on: "run-sentence"
+    key: "annotate_sentence_result"
+    depends_on: "run_sentence"
     commands: 
       - "buildkite-agent artifact download result.txt ."
       - "cat result.txt | buildkite-agent annotate --style 'success'"
   - label: ":python: Run Paragraph Function"
-    key: "run-paragraph"
-    depends_on: "annotate-sentence-result"
-    if: build.jobs.annotate-sentence-result == "passed"
+    key: "run_paragraph"
+    depends_on: "annotate_sentence_result"
+    if: build.jobs.annotate_sentence_result == "passed"
     plugins:
     - docker#v5.12.0:
         image: "python:3.13"
@@ -30,20 +30,20 @@ steps:
       - "cat result2.txt"
     artifact_paths: "result2.txt"
   - label: ":memo: Annotate Paragraph Result"
-    key: "annotate-paragraph-result"
-    depends_on: "run-paragraph"
+    key: "annotate_paragraph_result"
+    depends_on: "run_paragraph"
     commands: 
       - "buildkite-agent artifact download result2.txt ."
       - "cat result2.txt | buildkite-agent annotate --style 'success'"
   - label: ":arrow_down: Download and Print Artifact"
-    key: "download-print-artifact"
-    depends_on: "annotate-paragraph-result"
+    key: "download_print_artifact"
+    depends_on: "annotate_paragraph_result"
     commands: 
       - "buildkite-agent artifact download result2.txt ."
       - "cat result2.txt"
   - label: "Push to Buildkite Docker Package Registries"
-    key: "docker-package-registry"
-    depends_on: "download-print-artifact"
+    key: "docker_package_registry"
+    depends_on: "download_print_artifact"
     commands: 
       - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
@@ -51,8 +51,8 @@ steps:
       - "docker tag hello-world packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world:latest"
       - "docker push packages.buildkite.com/dl-trial/buildkite-container-registry/custom-hello-world:latest"
   - label: "Pull Buildkite Docker Image and Run It"
-    key: "test-docker-package-registry"
-    depends_on: "docker-package-registry"
+    key: "test_docker_package_registry"
+    depends_on: "docker_package_registry"
     commands:
       - TOKEN_VALUE=$$(buildkite-agent secret get DOCKER_TOKEN)
       - "docker login packages.buildkite.com/dl-trial/buildkite-container-registry -u buildkite -p $$TOKEN_VALUE"
